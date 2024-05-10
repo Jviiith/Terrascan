@@ -1,0 +1,16 @@
+{
+	"name": "Instance_type",
+	"file": "instance_type_policy.rego",
+	"policy_type": "AWS",
+	"resource_type": "aws_instance",
+	"template_args": {
+		"name": "Instance_type",
+		"prefix": "",
+		"suffix": ""
+	},
+	"severity": "HIGH",
+	"description": "Make sure instances created are within the free tier",
+	"category": "EC2 instance",
+	"version": 1,
+	"id": "instance_type_policy_terrascan"
+}

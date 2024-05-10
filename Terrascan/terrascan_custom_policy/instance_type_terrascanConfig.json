@@ -1,0 +1,121 @@
+{
+	"terrascanConfig": {
+		"aws_instance": [
+			{
+				"id": "aws_instance.web_instance",
+				"name": "web_instance",
+				"module_name": "root",
+				"source": "instance.tf",
+				"line": 18,
+				"type": "aws_instance",
+				"config": {
+					"ami": "ami-06aa3f7caf3a30282",
+					"associate_public_ip_address": true,
+					"availability_zone": "us-east-1a",
+					"instance_type": "t2.micro",
+					"key_name": "ec2-keypair",
+					"subnet_id": "${aws_subnet.dev_public_subnet.id}",
+					"tags": {
+						"Name": "web-server"
+					},
+					"vpc_security_group_ids": [
+						"${aws_security_group.instance_sg.id}"
+					]
+				},
+				"skip_rules": null,
+				"max_severity": "",
+				"min_severity": ""
+			}
+		],
+		"aws_key_pair": [
+			{
+				"id": "aws_key_pair.server_key",
+				"name": "server_key",
+				"module_name": "root",
+				"source": "instance.tf",
+				"line": 6,
+				"type": "aws_key_pair",
+				"config": {
+					"key_name": "ec2-keypair",
+					"public_key": "${tls_private_key.key.public_key_openssh}"
+				},
+				"skip_rules": null,
+				"max_severity": "",
+				"min_severity": ""
+			}
+		],
+		"local_file": [
+			{
+				"id": "local_file.setup_server_key",
+				"name": "setup_server_key",
+				"module_name": "root",
+				"source": "instance.tf",
+				"line": 12,
+				"type": "local_file",
+				"config": {
+					"content": "${tls_private_key.key.private_key_pem}",
+					"filename": "ec2-keypair.pem"
+				},
+				"skip_rules": null,
+				"max_severity": "",
+				"min_severity": ""
+			}
+		],
+		"null_resource": [
+			{
+				"id": "null_resource.install_apache",
+				"name": "install_apache",
+				"module_name": "root",
+				"source": "instance.tf",
+				"line": 34,
+				"type": "null_resource",
+				"config": {
+					"connection": [
+						{
+							"host": "${aws_instance.web_instance.public_ip}",
+							"private_key": "${tls_private_key.key.private_key_pem}",
+							"type": "ssh",
+							"user": "ec2-user"
+						}
+					],
+					"provisioner": [
+						{
+							"remote-exec": {
+								"inline": [
+									"sudo apt update -y",
+									"sudo apt install apache2 -y",
+									"sudo systemctl start apache2",
+									"sudo bash -c 'echo your very first web server > /var/www/html/index.html'"
+								]
+							}
+						}
+					]
+				},
+				"skip_rules": null,
+				"max_severity": "",
+				"min_severity": ""
+			}
+		],
+		"tls_private_key": [
+			{
+				"id": "tls_private_key.key",
+				"name": "key",
+				"module_name": "root",
+				"source": "instance.tf",
+				"line": 1,
+				"type": "tls_private_key",
+				"config": {
+					"algorithm": "RSA"
+				},
+				"skip_rules": null,
+				"max_severity": "",
+				"min_severity": ""
+			}
+		]
+	},
+	"iacMetadata": {
+		"iacType": "terraform",
+		"iacPath": "Terrascan/instance.tf",
+		"providerType": "AWS"
+	}
+}
